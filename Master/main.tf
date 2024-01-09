@@ -24,10 +24,10 @@ module "my_iam_policies" {
   source = "./Module/Policy"  # Update with the correct path
   statementId = "AllowExecutionFromAPIGateway"
   action = "lambda:InvokeFunction"
-  function = module.my_lambda_function.function_name
+  function = [module.my_lambda_function.function_name, module.my_deletelambda_function.function_name]
   principle = "apigateway.amazonaws.com"
 
-  sourcearn = "${module.my_api_gateway.execution_arn}/*/*/*"
+  sourcearn = ["${module.my_api_gateway.execution_arn}/*/*/${module.my_lambda_function.function_name}","${module.my_api_gateway.execution_arn}/*/*/${module.my_deletelambda_function.function_name}"]
   policies = [
     {
       name        = "Policy1"
@@ -87,7 +87,7 @@ module "my_api_gateway" {
   path_part         = "mypath"
   authorization = "NONE"
   Lambda_uri = [module.my_lambda_function.lambda_invokearn, module.my_deletelambda_function.lambda_invokearn]
-  status_code = ["200","400"]
+  status_code = ["200","200"]
   methods     = ["POST", "DELETE"]  # Specify the methods here
 
  // depends_on = [ module.my_deletelambda_function, module.my_lambda_function ]

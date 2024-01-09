@@ -18,13 +18,13 @@ variable "assume_role_policy" {
 }
 
 variable "sourcearn" {
-  
+  type = list(string)
 }
 variable "statementId" {
   
 }
 variable "function" {
-  
+  type = list(string)
 }
 
 variable "action" {
