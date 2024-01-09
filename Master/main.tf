@@ -27,7 +27,7 @@ module "my_iam_policies" {
   function = [module.my_lambda_function.function_name, module.my_deletelambda_function.function_name]
   principle = "apigateway.amazonaws.com"
 
-  sourcearn = ["${module.my_api_gateway.execution_arn}/*/*/${module.my_lambda_function.function_name}","${module.my_api_gateway.execution_arn}/*/*/${module.my_deletelambda_function.function_name}"]
+  sourcearn = "${module.my_api_gateway.execution_arn}/*/*/*"
   policies = [
     {
       name        = "Policy1"
