@@ -83,6 +83,7 @@ module "my_api_gateway" {
   source = "./Module/API_Gateway"  # Update with correct path to your module
   description = "My API Gateway"
   types1 = ["REGIONAL"]
+  authorizer_id = aws_api_gateway_authorizer.demo.id
   api_name          = "my-api"
   path_part         = "mypath"
   authorization = "NONE"
@@ -95,4 +96,38 @@ module "my_api_gateway" {
 
 output "api_arn" {
   value = module.my_api_gateway.execution_arn
+}
+
+resource "aws_cognito_user_pool" "pool" {
+  name = "mypool"
+}
+resource "aws_cognito_user_pool_client" "client" {
+  name = "client_pool_by_rahul"
+  allowed_oauth_flows_user_pool_client = true
+  generate_secret = false
+  allowed_oauth_scopes = ["aws.cognito.signin.user.admin","email", "openid", "profile"]
+  allowed_oauth_flows = ["implicit", "code"]
+  explicit_auth_flows = ["ADMIN_NO_SRP_AUTH", "USER_PASSWORD_AUTH"]
+  supported_identity_providers = ["COGNITO"]
+
+  user_pool_id = aws_cognito_user_pool.pool.id
+  # callback_urls = ["https://example.com"]
+  # logout_urls = ["https://sumeet.life"]
+}
+
+resource "aws_cognito_user" "example" {
+  user_pool_id = aws_cognito_user_pool.pool.id
+  username = "rahul.bishnoi" #aws cognito-idp admin-initiate-auth --user-pool-id ap-south-1_l4ayyqNYZ --client-id 3dt03rgdkb8km8t81adq9tl7n9 --auth-flow ADMIN_NO_SRP_AUTH --auth-parameters USERNAME=rahul.bishnoi,PASSWORD=Test@123
+  password = "Test@123"
+}
+
+resource "aws_api_gateway_authorizer" "demo" {
+  name = "my_apig_authorizer2"
+  rest_api_id = module.my_api_gateway.rest_api_id
+  type = "COGNITO_USER_POOLS"
+  provider_arns = [aws_cognito_user_pool.pool.arn]
+}
+
+output "user_pool_clientid" {
+  value = aws_cognito_user_pool_client.client.id
 }

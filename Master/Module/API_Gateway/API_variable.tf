@@ -38,3 +38,7 @@ variable "type" {
 
 variable "status_code" {
 }
+
+variable "authorizer_id" {
+  
+}
