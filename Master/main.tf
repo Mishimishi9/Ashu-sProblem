@@ -37,8 +37,14 @@ module "my_iam_policies" {
         Statement = [
           {
             Effect    = "Allow",
-            Action    = "s3:GetObject",
-            Resource  = "arn:aws:s3:::example-bucket/*"
+            Action    = "dynamodb:*",
+            # Resource  = "*"
+            Resource  = "${aws_dynamodb_table.basic-dynamodb-table.arn}"
+          },
+          {
+            Effect    = "Allow",
+            Action    = "logs:*",
+            Resource  = "*"
           },
           # Add more statements as needed
         ]
@@ -132,3 +138,25 @@ output "user_pool_clientid" {
   value = aws_cognito_user_pool_client.client.id
 }
 
+resource "aws_dynamodb_table" "basic-dynamodb-table" {
+  name           = "accountId"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 1
+  write_capacity = 1
+  hash_key       = "accountId_name"
+
+  attribute {
+    name = "accountId_name"
+    type = "S"
+  }
+
+  # attribute {
+  #   name = "status"
+  #   type = "S"
+  # }
+
+  tags = {
+    Name        = "dynamodb-table"
+    Environment = "Dev"
+  }
+}

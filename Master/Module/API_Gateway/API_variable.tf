@@ -33,7 +33,7 @@ variable "Lambda_uri" {
 }
 
 variable "type" {
-  default = "AWS"
+  default = "AWS_PROXY"
 }
 
 variable "status_code" {
