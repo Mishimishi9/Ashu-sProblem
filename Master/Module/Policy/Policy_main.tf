@@ -22,13 +22,11 @@ resource "aws_iam_policy_attachment" "policy_attachment" {
 }
 
 resource "aws_lambda_permission" "here" {
-  for_each = {
-    for method in var.function : method => method
-  }
+  count = length(var.function)
   statement_id = var.statementId
   action = var.action
-  function_name = each.key
+  function_name = var.function[count.index]
   principal = var.principle
 
-  source_arn = var.sourcearn 
+  source_arn = var.sourcearn[count.index]
 }

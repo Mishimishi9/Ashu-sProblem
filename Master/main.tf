@@ -27,7 +27,7 @@ module "my_iam_policies" {
   function = [module.my_lambda_function.function_name, module.my_deletelambda_function.function_name]
   principle = "apigateway.amazonaws.com"
 
-  sourcearn = "${module.my_api_gateway.execution_arn}/*/*/*"
+  sourcearn = ["${module.my_api_gateway.execution_arn}/*/POST/mypath", "${module.my_api_gateway.execution_arn}/*/DELETE/mypath"]
   policies = [
     {
       name        = "Policy1"
@@ -111,13 +111,13 @@ resource "aws_cognito_user_pool_client" "client" {
   supported_identity_providers = ["COGNITO"]
 
   user_pool_id = aws_cognito_user_pool.pool.id
-  # callback_urls = ["https://example.com"]
-  # logout_urls = ["https://sumeet.life"]
+  callback_urls = ["https://example.com"]
+  logout_urls = ["https://sumeet.life"]
 }
 
 resource "aws_cognito_user" "example" {
   user_pool_id = aws_cognito_user_pool.pool.id
-  username = "rahul.bishnoi" #aws cognito-idp admin-initiate-auth --user-pool-id ap-south-1_l4ayyqNYZ --client-id 3dt03rgdkb8km8t81adq9tl7n9 --auth-flow ADMIN_NO_SRP_AUTH --auth-parameters USERNAME=rahul.bishnoi,PASSWORD=Test@123
+  username = "rahul.bishnoi" #aws cognito-idp admin-initiate-auth --user-pool-id ap-south-1_WEJLSXjdg --client-id 6kujqfqqvet4dt5q076g3vl4ml --auth-flow ADMIN_NO_SRP_AUTH --auth-parameters USERNAME=rahul.bishnoi,PASSWORD=Test@123
   password = "Test@123"
 }
 
@@ -131,3 +131,4 @@ resource "aws_api_gateway_authorizer" "demo" {
 output "user_pool_clientid" {
   value = aws_cognito_user_pool_client.client.id
 }
+

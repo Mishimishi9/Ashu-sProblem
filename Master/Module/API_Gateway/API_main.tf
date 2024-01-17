@@ -15,36 +15,31 @@ resource "aws_api_gateway_resource" "root" {
 }
 
 resource "aws_api_gateway_method" "proxy" {
-  for_each = {
-    for method in var.methods : method => method
-  }
+  count = length(var.methods)
   rest_api_id = aws_api_gateway_rest_api.my_api.id
   resource_id = aws_api_gateway_resource.root.id
-  http_method = each.key
+  http_method = var.methods[count.index]
+  # authorization = "NONE"
   authorization = "COGNITO_USER_POOLS"
   authorizer_id = var.authorizer_id
 }
 
 resource "aws_api_gateway_integration" "lambda_integration" {
-  for_each = {
-    for idx, method in var.methods : idx => method
-  }
-  rest_api_id = aws_api_gateway_rest_api.my_api.id
-  resource_id = aws_api_gateway_resource.root.id
-  http_method = each.value
-  integration_http_method = each.value
+  count = length(var.methods)
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.root.id
+  http_method   = var.methods[count.index]
+  integration_http_method = ["POST"]
   type = var.type
-  uri = var.Lambda_uri[each.key]
+  uri = var.Lambda_uri[count.index]
 }
 
 resource "aws_api_gateway_method_response" "proxy" {
-  for_each = {
-    for idx, method in var.methods : idx => method
-  }
+  count = length(var.methods)
   rest_api_id = aws_api_gateway_rest_api.my_api.id
   resource_id = aws_api_gateway_resource.root.id
-  http_method = each.value
-  status_code = var.status_code[each.key]
+  http_method = var.methods[count.index]
+  status_code = var.status_code[count.index]
   # response_parameters = {
   #   "method.response.header.Access-Control-Allow-Headers" = true,
   #   "method.response.header.Access-Control-Allow-Methods" = true,
@@ -54,13 +49,11 @@ resource "aws_api_gateway_method_response" "proxy" {
 }
 
 resource "aws_api_gateway_integration_response" "proxy" {
-     for_each = {
-    for idx, method in var.methods : idx => method
-  }
+  count = length(var.methods)
   rest_api_id = aws_api_gateway_rest_api.my_api.id
   resource_id = aws_api_gateway_resource.root.id
-  http_method = each.value
-  status_code = aws_api_gateway_method_response.proxy[each.key].status_code
+  http_method = var.methods[count.index]
+  status_code = aws_api_gateway_method_response.proxy[count.index].status_code
 
 #   response_parameters = {
 #     "method.response.header.Access-Control-Allow-Headers" =  "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
